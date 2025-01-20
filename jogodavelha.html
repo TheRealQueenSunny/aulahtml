@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Velha</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      color: #333;
+      margin-top: 20px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #fff;
+      border: 2px solid #333;
+      font-size: 32px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+    }
+
+    .status {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jogo da Velha</h1>
+  <div class="board" id="board">
+    <!-- As células do tabuleiro serão geradas dinamicamente -->
+  </div>
+  <div class="status" id="status">Vez do jogador: X</div>
+  <button onclick="resetGame()">Reiniciar Jogo</button>
+
+  <script>
+    const board = document.getElementById('board');
+    const statusText = document.getElementById('status');
+    let currentPlayer = 'X';
+    let gameBoard = Array(9).fill('');
+    let winner = '';
+
+    // Inicializa o tabuleiro
+    function initBoard() {
+      board.innerHTML = '';
+      gameBoard.forEach((_, index) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = index;
+        cell.addEventListener('click', handleCellClick);
+        board.appendChild(cell);
+      });
+    }
+
+    // Verifica se há um vencedor
+    function checkWinner() {
+      const winPatterns = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
+      for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if (
+          gameBoard[a] &&
+          gameBoard[a] === gameBoard[b] &&
+          gameBoard[a] === gameBoard[c]
+        ) {
+          return gameBoard[a];
+        }
+      }
+      return gameBoard.includes('') ? null : 'Empate';
+    }
+
+    // Lida com o clique em uma célula
+    function handleCellClick(event) {
+      const index = event.target.dataset.index;
+
+      if (gameBoard[index] || winner) return;
+
+      gameBoard[index] = currentPlayer;
+      event.target.textContent = currentPlayer;
+      event.target.classList.add('taken');
+
+      winner = checkWinner();
+
+      if (winner) {
+        statusText.textContent =
+          winner === 'Empate' ? 'Jogo empatado!' : `Jogador ${winner} venceu!`;
+      } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusText.textContent = `Vez do jogador: ${currentPlayer}`;
+      }
+    }
+
+    // Reinicia o jogo
+    function resetGame() {
+      gameBoard = Array(9).fill('');
+      currentPlayer = 'X';
+      winner = '';
+      statusText.textContent = `Vez do jogador: ${currentPlayer}`;
+      initBoard();
+    }
+
+    // Inicializa o jogo na primeira execução
+    initBoard();
+  </script>
+</body>
+</html>
